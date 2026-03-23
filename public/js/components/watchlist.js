@@ -49,7 +49,7 @@ function _renderGrid() {
   const grid = document.getElementById('watchlist-grid');
 
   if (state.watchlist.length === 0) {
-    grid.innerHTML = '<div class="empty-state">Your watchlist is empty. Use the search or quick-add buttons above.</div>';
+    grid.innerHTML = '<div class="empty-state">Twoja lista obserwowanych jest pusta. Użyj wyszukiwarki lub przycisków szybkiego dodawania powyżej.</div>';
     return;
   }
 
@@ -61,7 +61,7 @@ function _renderGrid() {
       const sym = btn.dataset.symbol;
       state.removeTicker(sym);
       renderWatchlist();
-      showToast(`Removed ${sym} from watchlist`, 'info');
+      showToast(`Usunięto ${sym} z listy obserwowanych`, 'info');
     });
   });
 
@@ -74,7 +74,7 @@ function _buildCardHTML(symbol) {
     <div class="watchlist-card" data-symbol="${symbol}">
       <div class="card-header">
         <span class="card-symbol">${symbol}</span>
-        <button class="remove-btn" data-symbol="${symbol}" title="Remove ${symbol}" aria-label="Remove ${symbol}">×</button>
+        <button class="remove-btn" data-symbol="${symbol}" title="Usuń ${symbol}" aria-label="Usuń ${symbol}">×</button>
       </div>
       <div class="card-name">—</div>
       <div class="card-price">—</div>
@@ -109,7 +109,7 @@ function _setCardLoading(card, loading) {
 }
 
 function _setCardError(card, message) {
-  card.querySelector('.card-name').textContent = 'Failed to load';
+  card.querySelector('.card-name').textContent = 'Błąd ładowania';
   card.querySelector('.card-price').textContent = '—';
   const el = card.querySelector('.card-change');
   el.className = 'card-change negative';
@@ -125,7 +125,7 @@ export function _syncSimulatorTickers() {
   if (!container) return;
 
   if (state.watchlist.length === 0) {
-    container.innerHTML = '<span class="muted-hint">Add tickers to watchlist first.</span>';
+    container.innerHTML = '<span class="muted-hint">Najpierw dodaj instrumenty do listy obserwowanych.</span>';
     return;
   }
 

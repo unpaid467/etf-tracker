@@ -44,13 +44,13 @@ function _setupSearch() {
 
 async function _performSearch(query, dropdown) {
   dropdown.classList.remove('hidden');
-  dropdown.innerHTML = '<div class="search-result-item"><span class="sr-name">Searching…</span></div>';
+dropdown.innerHTML = '<div class="search-result-item"><span class="sr-name">Szukam…</span></div>';
 
   try {
     const { results } = await api.search(query);
 
     if (!results.length) {
-      dropdown.innerHTML = '<div class="search-result-item"><span class="sr-name">No results found.</span></div>';
+      dropdown.innerHTML = '<div class="search-result-item"><span class="sr-name">Brak wyników.</span></div>';
       return;
     }
 
@@ -81,9 +81,9 @@ function _addTicker(symbol, dropdown) {
   const added = state.addTicker(symbol);
   if (added) {
     renderWatchlist();
-    showToast(`Added ${symbol} to watchlist`, 'success');
+    showToast(`Dodano ${symbol} do listy obserwowanych`, 'success');
   } else {
-    showToast(`${symbol} is already in your watchlist`, 'info');
+    showToast(`${symbol} jest już na liście obserwowanych`, 'info');
   }
 }
 
@@ -96,9 +96,9 @@ function _setupQuickAdd() {
       const added = state.addTicker(sym);
       if (added) {
         renderWatchlist();
-        showToast(`Added ${sym}`, 'success');
+        showToast(`Dodano ${sym}`, 'success');
       } else {
-        showToast(`${sym} already in watchlist`, 'info');
+        showToast(`${sym} już na liście obserwowanych`, 'info');
       }
     });
   });
@@ -110,12 +110,12 @@ function _setupRefreshButton() {
   const btn = document.getElementById('refresh-btn');
   btn.addEventListener('click', async () => {
     btn.disabled = true;
-    btn.textContent = 'Refreshing…';
+    btn.textContent = 'Odświeżam…';
     await refreshAll();
     _updateLastUpdatedLabel();
     btn.disabled = false;
-    btn.textContent = 'Refresh';
-    showToast('Prices updated', 'success');
+    btn.textContent = 'Odśwież';
+    showToast('Ceny zaktualizowane', 'success');
   });
 }
 
@@ -130,7 +130,7 @@ function _startAutoRefresh() {
 
 function _updateLastUpdatedLabel() {
   const el = document.getElementById('last-updated');
-  if (el) el.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+  if (el) el.textContent = `Zaktualizowano: ${new Date().toLocaleTimeString()}`;
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────

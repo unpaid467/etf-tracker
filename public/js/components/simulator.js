@@ -24,21 +24,21 @@ async function _runSimulation() {
   const tickers   = _getSelectedTickers();
 
   if (!amount || amount <= 0) {
-    showToast('Enter a valid initial investment amount.', 'error');
+    showToast('Wprowadź prawidłową kwotę inwestycji początkowej.', 'error');
     return;
   }
   if (!startDate) {
-    showToast('Select a start date.', 'error');
+    showToast('Wybierz datę początkową.', 'error');
     return;
   }
   if (tickers.length === 0) {
-    showToast('Select at least one ticker.', 'error');
+    showToast('Wybierz co najmniej jeden instrument.', 'error');
     return;
   }
 
   const btn = document.getElementById('run-simulation-btn');
   btn.disabled = true;
-  btn.textContent = 'Loading…';
+  btn.textContent = 'Ładuję…';
 
   try {
     const endDate = todayISO();
@@ -48,17 +48,17 @@ async function _runSimulation() {
 
     const valid = results.filter(Boolean);
     if (valid.length === 0) {
-      showToast('No data found for the selected tickers and date range.', 'error');
+      showToast('Nie znaleziono danych dla wybranych instrumentów i zakresu dat.', 'error');
       return;
     }
 
     _displayResults(valid, amount, startDate);
   } catch (err) {
-    showToast(`Simulation error: ${err.message}`, 'error');
+    showToast(`Błąd symulacji: ${err.message}`, 'error');
     console.error(err);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Run Simulation';
+    btn.textContent = 'Uruchom Symulację';
   }
 }
 
@@ -117,7 +117,7 @@ function _displayResults(results, initialAmount, startDate) {
       colorOverride: CONFIG.CHART_COLORS[i % CONFIG.CHART_COLORS.length],
     })),
     {
-      label:        'Cash (no growth)',
+      label:        'Gotówka (bez wzrostu)',
       points:       cashPoints,
       dashed:       true,
       colorOverride: CONFIG.CASH_LINE_COLOR,
@@ -137,7 +137,7 @@ function _renderSummaryCards(results, initialAmount) {
       const arrow = r.gain >= 0 ? '▲' : '▼';
       return `
         <div class="summary-card">
-          <div class="sc-label">Initial: ${formatCurrency(initialAmount)}</div>
+          <div class="sc-label">Startowa: ${formatCurrency(initialAmount)}</div>
           <div class="sc-symbol" style="color:${color}">${r.symbol}</div>
           <div class="sc-value">${formatCurrency(r.finalValue)}</div>
           <div class="sc-gain ${cls}">
