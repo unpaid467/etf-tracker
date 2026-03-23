@@ -71,62 +71,6 @@
   }
 
   // public/js/services/api.js
-  var IS_LOCAL = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  var _proxy = (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-  var _cache = /* @__PURE__ */ new Map();
-  function _cacheGet(key) {
-    const e = _cache.get(key);
-    if (!e || Date.now() > e.exp) {
-      _cache.delete(key);
-      return null;
-    }
-    return e.v;
-  }
-  function _cacheSet(key, value, ms) {
-    _cache.set(key, { v: value, exp: Date.now() + ms });
-  }
-  var TTL = { QUOTE: 36e5, HISTORY: 36e5, SEARCH: 3e5 };
-  var STOOQ = "https://stooq.com";
-  function _toStooq(symbol) {
-    return (symbol.includes(".") ? symbol : symbol + ".US").toLowerCase();
-  }
-  function _stooqDate(iso) {
-    return iso.replace(/-/g, "");
-  }
-  function _today() {
-    const d = /* @__PURE__ */ new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  }
-  function _daysAgo(n) {
-    const d = /* @__PURE__ */ new Date();
-    d.setDate(d.getDate() - n);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  }
-  function _parseCSV(text) {
-    const lines = text.trim().split(/\r?\n/);
-    if (lines.length < 2)
-      return [];
-    const headers = lines[0].split(",").map((h) => h.trim());
-    return lines.slice(1).map((l) => {
-      const vals = l.split(",");
-      return Object.fromEntries(headers.map((h, i) => [h, vals[i]?.trim() ?? ""]));
-    }).filter((r) => r.Date && r.Close && !isNaN(parseFloat(r.Close)));
-  }
-  function _currency(stooqSym) {
-    const ext = stooqSym.split(".").pop();
-    return { us: "USD", de: "EUR", l: "USD", wa: "PLN" }[ext] ?? "USD";
-  }
-  function _exchange(stooqSym) {
-    const ext = stooqSym.split(".").pop();
-    return { us: "NASDAQ/NYSE", de: "XETRA", l: "LSE", wa: "GPW" }[ext] ?? ext.toUpperCase();
-  }
-  async function _stooqCSV(stooqSym, d1iso, d2iso) {
-    const url = `${STOOQ}/q/d/l/?s=${encodeURIComponent(stooqSym)}&d1=${_stooqDate(d1iso)}&d2=${_stooqDate(d2iso)}&i=d`;
-    const res = await fetch(_proxy(url));
-    if (!res.ok)
-      throw new Error(`HTTP ${res.status}`);
-    return _parseCSV(await res.text());
-  }
   var KNOWN = [
     { symbol: "VWCE.DE", name: "Vanguard FTSE All-World UCITS ETF", type: "ETF", exchange: "XETRA" },
     { symbol: "BETASPTH.WA", name: "Beta ETF S&P 500 PLN-Hedged", type: "ETF", exchange: "GPW" },
@@ -146,19 +90,13 @@
   ];
   var api = {
     getQuote(symbol) {
-      if (IS_LOCAL)
-        return _backendGet(`/quote/${encodeURIComponent(symbol)}`);
-      return _stooqQuote(symbol);
+      return _backendGet(`/quote/${encodeURIComponent(symbol)}`);
     },
     getHistory(symbol, start, end) {
-      if (IS_LOCAL)
-        return _backendGet(`/history/${encodeURIComponent(symbol)}`, { start, end });
-      return _stooqHistory(symbol, start, end);
+      return _backendGet(`/history/${encodeURIComponent(symbol)}`, { start, end });
     },
     search(q) {
-      if (IS_LOCAL)
-        return _backendGet("/search", { q });
-      return _localSearch(q);
+      return _backendSearch(q);
     }
   };
   async function _backendGet(path, params = {}) {
@@ -171,46 +109,14 @@
     }
     return res.json();
   }
-  async function _stooqQuote(symbol) {
-    const ck = `quote:${symbol}`;
-    const cached = _cacheGet(ck);
-    if (cached)
-      return cached;
-    const stooqSym = _toStooq(symbol);
-    const rows = await _stooqCSV(stooqSym, _daysAgo(14), _today());
-    if (rows.length === 0)
-      throw new Error(`Brak danych dla ${symbol}`);
-    const last = rows[rows.length - 1];
-    const prev = rows.length >= 2 ? rows[rows.length - 2] : last;
-    const price = parseFloat(last.Close);
-    const prevCl = parseFloat(prev.Close);
-    const change = price - prevCl;
-    const data = {
-      symbol,
-      shortName: symbol,
-      currency: _currency(stooqSym),
-      regularMarketPrice: price,
-      regularMarketChange: change,
-      regularMarketChangePercent: prevCl ? change / prevCl * 100 : 0,
-      regularMarketPreviousClose: prevCl,
-      quoteType: "ETF",
-      exchangeName: _exchange(stooqSym),
-      marketState: "REGULAR"
-    };
-    _cacheSet(ck, data, TTL.QUOTE);
-    return data;
-  }
-  async function _stooqHistory(symbol, start, end) {
-    const ck = `history:${symbol}:${start}:${end}`;
-    const cached = _cacheGet(ck);
-    if (cached)
-      return cached;
-    const rows = await _stooqCSV(_toStooq(symbol), start, end);
-    if (rows.length < 2)
-      throw new Error(`Brak danych historycznych dla ${symbol}`);
-    const data = { data: rows.map((r) => ({ date: r.Date, close: parseFloat(r.Close) })) };
-    _cacheSet(ck, data, TTL.HISTORY);
-    return data;
+  async function _backendSearch(q) {
+    try {
+      const data = await _backendGet("/search", { q });
+      if (data.results && data.results.length > 0)
+        return data;
+    } catch {
+    }
+    return _localSearch(q);
   }
   function _localSearch(q) {
     const lq = q.toLowerCase().trim();
