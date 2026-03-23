@@ -21,6 +21,11 @@ app.get('*', (_req, res) => {
   res.sendFile(join(__dirname, '../public/index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Market Monitor running at http://localhost:${PORT}`);
-});
+// Export for Vercel serverless; only bind a port when running locally.
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Market Monitor running at http://localhost:${PORT}`);
+  });
+}
+
+export default app;
