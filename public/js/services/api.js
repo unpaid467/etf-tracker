@@ -5,9 +5,12 @@ import { CONFIG } from '../config.js';
 /** True when running locally with the Express backend available. */
 const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
-/** Free CORS proxy used when running as a static site (GitHub Pages, etc.) */
-const CORS_PROXY = 'https://corsproxy.io/?';
-const YF_BASE    = 'https://query1.finance.yahoo.com';
+/** CORS proxies tried in order when running as a static site (GitHub Pages, etc.) */
+const CORS_PROXIES = [
+  (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+];
+const YF_BASE = 'https://query1.finance.yahoo.com';
 
 // ── Simple in-browser cache (mirrors server-side TTLs) ───────────────────────
 
@@ -86,11 +89,18 @@ async function _backendGet(path, params = {}) {
 // ── Direct Yahoo Finance calls (static hosting / GitHub Pages) ───────────────
 
 async function _yfGet(path) {
-  const fullUrl  = YF_BASE + path;
-  const proxyUrl = CORS_PROXY + encodeURIComponent(fullUrl);
-  const res = await fetch(proxyUrl);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  const fullUrl = YF_BASE + path;
+  let lastErr;
+  for (const makeProxy of CORS_PROXIES) {
+    try {
+      const res = await fetch(makeProxy(fullUrl));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
 async function _yfGetQuote(symbol) {

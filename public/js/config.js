@@ -7,7 +7,7 @@ export const CONFIG = Object.freeze({
   REFRESH_INTERVAL_MS: 60 * 60 * 1000,
 
   /** Tickers pre-loaded in a fresh watchlist */
-  DEFAULT_TICKERS: ['SPY', 'QQQ', 'GLD'],
+  DEFAULT_TICKERS: ['VWCE.DE', 'BETASPTH.WA', 'BETANASH.WA'],
 
   /** Ordered palette for chart datasets */
   CHART_COLORS: [
