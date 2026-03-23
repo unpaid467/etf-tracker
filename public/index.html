@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market Monitor</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <!-- Chart.js + date adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── Header ───────────────────────────────────────────────────────── -->
+    <header class="app-header">
+      <div class="header-inner">
+        <h1 class="logo">📈 Market Monitor</h1>
+        <div class="header-actions">
+          <span id="last-updated" class="last-updated"></span>
+          <button id="refresh-btn" class="btn btn-secondary">Refresh</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- ── Watchlist ────────────────────────────────────────────────── -->
+      <section class="section" id="watchlist-section">
+        <div class="section-header">
+          <h2>Watchlist</h2>
+          <div class="add-ticker">
+            <input
+              type="text"
+              id="ticker-search"
+              placeholder="Search ETF or stock (e.g. SPY, AAPL)…"
+              class="input"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <div id="search-results" class="search-dropdown hidden"></div>
+          </div>
+        </div>
+
+        <!-- Quick-add popular tickers -->
+        <div id="quick-add" class="quick-add">
+          <span class="quick-add-label">Quick add:</span>
+          <button class="chip" data-symbol="SPY">SPY</button>
+          <button class="chip" data-symbol="QQQ">QQQ</button>
+          <button class="chip" data-symbol="VTI">VTI</button>
+          <button class="chip" data-symbol="GLD">GLD</button>
+          <button class="chip" data-symbol="BND">BND</button>
+          <button class="chip" data-symbol="AAPL">AAPL</button>
+          <button class="chip" data-symbol="MSFT">MSFT</button>
+          <button class="chip" data-symbol="AMZN">AMZN</button>
+        </div>
+
+        <div id="watchlist-grid" class="watchlist-grid">
+          <div class="empty-state">Add tickers to your watchlist to get started.</div>
+        </div>
+      </section>
+
+      <!-- ── Investment Simulator ─────────────────────────────────────── -->
+      <section class="section" id="simulator-section">
+        <div class="section-header">
+          <h2>Investment Simulator</h2>
+          <p class="section-subtitle">See how a lump-sum investment would have grown.</p>
+        </div>
+
+        <div class="simulator-controls">
+          <div class="control-group">
+            <label for="sim-amount">Initial Investment ($)</label>
+            <input type="number" id="sim-amount" value="1000" min="1" step="100" class="input" />
+          </div>
+          <div class="control-group">
+            <label for="sim-start">Start Date</label>
+            <input type="date" id="sim-start" class="input" />
+          </div>
+          <div class="control-group control-group--tickers">
+            <label>Tickers <span class="label-hint">(from watchlist)</span></label>
+            <div id="sim-tickers" class="ticker-checkboxes">
+              <span class="muted-hint">Add tickers to watchlist first.</span>
+            </div>
+          </div>
+          <div class="control-group control-actions">
+            <button id="run-simulation-btn" class="btn btn-primary">Run Simulation</button>
+          </div>
+        </div>
+
+        <div id="simulator-results" class="simulator-results hidden">
+          <div class="chart-container">
+            <canvas id="sim-chart"></canvas>
+          </div>
+          <div id="sim-summary" class="sim-summary"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
