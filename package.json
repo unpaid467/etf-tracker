@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "build": "esbuild public/js/app.js --bundle --format=iife --outfile=public/js/bundle.js"
+    "build": "npx esbuild public/js/app.js --bundle --format=iife --outfile=public/js/bundle.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
